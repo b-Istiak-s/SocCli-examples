@@ -1,0 +1,12 @@
+{
+  "name": "soccli-stomp-service",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {"start": "node server.js"},
+  "dependencies": {
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "stomp-broker-js": "^1.3.0"
+  }
+}
