@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "workers": [
+    {
+      "type": "router",
+      "realms": [
+        {
+          "name": "realm1",
+          "roles": [
+            { "name": "anonymous", "permissions": [
+              { "uri": "com.example.*", "match": "wildcard", "allow": { "call": true, "register": true, "publish": true, "subscribe": true } }
+            ] }
+          ]
+        }
+      ],
+      "transports": [
+        {
+          "type": "web",
+          "endpoint": { "type": "tcp", "port": 36720 },
+          "paths": {
+            "ws": {
+              "type": "websocket",
+              "url": "ws://0.0.0.0:36720/ws"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

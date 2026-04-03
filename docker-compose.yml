@@ -1,0 +1,94 @@
+services:
+  auth:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./services/auth:/app
+    command: sh -c "npm install && npm start"
+    environment:
+      - JWT_SECRET=soccli-dev-secret
+      - SHARED_USER_EMAIL=soccli-user@example.com
+      - SHARED_USER_NAME=SocCli Shared User
+    ports:
+      - "36711:36711"
+
+  raw:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./services/raw:/app
+    command: sh -c "npm install && npm start"
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
+    ports: ["36712:36712"]
+
+  socketio:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./services/socketio:/app
+    command: sh -c "npm install && npm start"
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
+    ports: ["36713:36713"]
+
+  graphql:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./services/graphql:/app
+    command: sh -c "npm install && npm start"
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
+    ports: ["36714:36714"]
+
+  jsonrpc:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./services/jsonrpc:/app
+    command: sh -c "npm install && npm start"
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
+    ports: ["36715:36715"]
+
+  stomp:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./services/stomp:/app
+    command: sh -c "npm install && npm start"
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
+    ports: ["36716:36716"]
+
+  signalr:
+    build: ./services/signalr
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
+    ports: ["36717:36717"]
+
+  mqtt:
+    image: emqx/emqx:5.8.4
+    environment:
+      - EMQX_LISTENERS__WS__DEFAULT__ENABLED=true
+      - EMQX_LISTENERS__WS__DEFAULT__BIND=0.0.0.0:36718
+      - EMQX_LISTENERS__TCP__DEFAULT__BIND=0.0.0.0:36719
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+    ports:
+      - "36719:36719"
+      - "36718:36718"
+
+  wamp:
+    image: crossbario/crossbar:24.3.1
+    volumes:
+      - ./infra/crossbar:/node/.crossbar
+    command: ["crossbar", "start", "--cbdir", "/node/.crossbar"]
+    ports:
+      - "36720:36720"
+
+  reverb:
+    build: ./services/laravel-reverb
+    environment:
+      - REVERB_APP_ID=local
+      - REVERB_APP_KEY=localkey
+      - REVERB_APP_SECRET=localsecret
+      - APP_KEY=base64:8fF4fIXD8prk6if3wW3E+w9u6P/6WzQxQB2eQ6jQ4W0=
+    ports:
+      - "36721:36721"
+      - "36722:36722"
