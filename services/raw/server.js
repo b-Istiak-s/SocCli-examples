@@ -17,7 +17,8 @@ wss.on('connection', (ws, req) => {
     if (!Array.isArray(payload.scopes) || !payload.scopes.includes('raw')) throw new Error('Missing raw scope');
     ws.user = payload;
     clients.add(ws);
-    ws.send(JSON.stringify({ type: 'welcome', protocol: 'raw', channel: 'raw.telemetry', user: payload.email }));
+    const userId = payload.email || payload.sub || payload.username || 'unknown';
+    ws.send(JSON.stringify({ type: 'welcome', protocol: 'raw', channel: 'raw.telemetry', user: userId }));
   } catch {
     ws.close(4401, 'Unauthorized');
     return;

@@ -84,6 +84,11 @@ services:
 
   reverb:
     build: ./services/laravel-reverb
+    environment:
+      - REVERB_APP_ID=local
+      - REVERB_APP_KEY=localkey
+      - REVERB_APP_SECRET=localsecret
+      - APP_KEY=base64:8fF4fIXD8prk6if3wW3E+w9u6P/6WzQxQB2eQ6jQ4W0=
     ports:
       - "36721:36721"
       - "36722:36722"

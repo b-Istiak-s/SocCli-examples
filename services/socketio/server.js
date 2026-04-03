@@ -21,14 +21,15 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-  socket.emit('welcome', { user: socket.data.user.email, protocol: 'socket.io', channels: ['message', 'ticker'] });
+  const userId = socket.data.user.email || socket.data.user.sub || socket.data.user.id || 'unknown';
+  socket.emit('welcome', { user: userId, protocol: 'socket.io', channels: ['message', 'ticker'] });
 
   socket.on('message', (payload) => {
-    io.emit('message', { from: socket.data.user.email, payload, ts: Date.now() });
+    io.emit('message', { from: userId, payload, ts: Date.now() });
   });
 
   socket.on('join', (room) => socket.join(room));
-  socket.on('room:message', ({ room, payload }) => io.to(room).emit('room:message', { room, payload, by: socket.data.user.email }));
+  socket.on('room:message', ({ room, payload }) => io.to(room).emit('room:message', { room, payload, by: userId }));
 });
 
 setInterval(() => {

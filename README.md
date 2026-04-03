@@ -159,7 +159,7 @@ soccli signalr invoke \
 ```bash
 soccli mqtt subscribe \
   --host localhost --port 36718 --path /mqtt \
-  --client-id soccli-client --username admin --password public \
+  --client-id soccli-client \
   --topic sensors/temperature
 ```
 
@@ -177,6 +177,7 @@ The `reverb` service bootstraps a Laravel app, installs Reverb + Sanctum, and ex
 
 - HTTP API: `http://localhost:36721`
 - Reverb WS: `ws://localhost:36722`
+- WebSocket app path uses `REVERB_APP_ID` (pinned to `local` in `docker-compose.yml`), so use `/app/local` unless you override `REVERB_APP_ID`.
 - token endpoint: `POST /api/token`
 
 After boot:

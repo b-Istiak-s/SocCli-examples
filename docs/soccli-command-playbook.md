@@ -128,7 +128,7 @@ soccli signalr connect \
 ```bash
 soccli mqtt subscribe \
   --host localhost --port 36718 --path /mqtt \
-  --client-id soccli-client --username admin --password public \
+  --client-id soccli-client \
   --topic sensors/temperature
 ```
 
@@ -136,7 +136,7 @@ soccli mqtt subscribe \
 ```bash
 soccli mqtt publish \
   --host localhost --port 36718 --path /mqtt \
-  --client-id soccli-pub --username admin --password public \
+  --client-id soccli-pub \
   --topic sensors/temperature --payload '{"value":24.3}'
 ```
 
@@ -166,6 +166,9 @@ soccli wamp connect --host localhost --port 36720 --path /ws --realm realm1
 ```
 
 ## 9) Pusher / Laravel Reverb
+
+`REVERB_APP_ID` is pinned to `local` in `docker-compose.yml`, so the WS path is `/app/local`.
+If you change `REVERB_APP_ID`, update to `/app/{REVERB_APP_ID}` in commands below.
 
 ### Subscribe private channel using broadcast auth
 ```bash

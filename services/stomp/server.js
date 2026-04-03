@@ -1,6 +1,5 @@
 import express from 'express';
 import http from 'http';
-import ws from 'ws';
 import jwt from 'jsonwebtoken';
 import StompServer from 'stomp-broker-js';
 
@@ -11,7 +10,6 @@ const app = express();
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 const server = http.createServer(app);
-const wsServer = new ws.Server({ server, path: '/ws' });
 
 const stompServer = new StompServer({
   server,
@@ -20,12 +18,26 @@ const stompServer = new StompServer({
   heartbeat: [2000, 2000]
 });
 
-stompServer.on('connecting', (sessionId, headers) => {
-  const token = headers.Authorization?.replace('Bearer ', '') || headers.authorization?.replace('Bearer ', '');
-  if (!token) throw new Error('Missing token');
-  const payload = jwt.verify(token, JWT_SECRET);
-  if (!Array.isArray(payload.scopes) || !payload.scopes.includes('stomp')) throw new Error('Missing stomp scope');
-  console.log('stomp connected', sessionId);
+stompServer.on('connecting', (sessionId, headers = {}) => {
+  try {
+    const token = headers.Authorization?.replace('Bearer ', '') || headers.authorization?.replace('Bearer ', '');
+    if (!token) throw new Error('Missing token');
+
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (!Array.isArray(payload.scopes) || !payload.scopes.includes('stomp')) {
+      throw new Error('Missing stomp scope');
+    }
+
+    console.log('stomp connected', sessionId);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown STOMP auth error';
+    console.error(`stomp auth rejected for session ${sessionId}: ${message}`);
+    stompServer.send('/queue/errors', {}, JSON.stringify({ type: 'auth_error', message }));
+    // Do not throw to avoid uncaught EventEmitter exception.
+    return false;
+  }
+
+  return true;
 });
 
 stompServer.subscribe('/topic/updates', (msg, headers) => {
@@ -33,8 +45,17 @@ stompServer.subscribe('/topic/updates', (msg, headers) => {
   return true;
 });
 
-setInterval(() => {
+const ticker = setInterval(() => {
   stompServer.send('/topic/updates', {}, JSON.stringify({ ts: Date.now(), text: 'tick' }));
 }, 5000);
+
+function shutdown(signal) {
+  console.log(`Received ${signal}, shutting down STOMP service...`);
+  clearInterval(ticker);
+  server.close(() => process.exit(0));
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 server.listen(port, () => console.log(`STOMP on ${port}/ws`));

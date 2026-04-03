@@ -47,12 +47,12 @@ This doc explains how each service in this repo works independently.
 
 ## MQTT (`emqx` in compose)
 - WS listener on `36718`, TCP listener on `36719`.
-- Username/password auth (`admin` / `public` in example config).
+- Dashboard credentials are configured (`EMQX_DASHBOARD__*`) for admin UI only; MQTT client auth in this demo relies on broker defaults unless you enable a dedicated MQTT authenticator.
 - Independent broker service; not JWT-coupled to auth service.
 
 ## WAMP (`crossbar`)
 - Router endpoint on `ws://localhost:36720/ws`, realm `realm1`.
-- Anonymous role allowed for `com.example.*` call/register/publish/subscribe.
+- Anonymous role is least-privilege and subscribe-only for `com.example.*` (no anonymous call/register/publish).
 - Independent router service; not JWT-coupled to auth service.
 
 ## Laravel Reverb (`services/laravel-reverb`)
