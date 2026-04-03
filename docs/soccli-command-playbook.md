@@ -10,6 +10,11 @@ GLOBAL_TOKEN=$(curl -s -X POST http://localhost:36711/token -H 'content-type: ap
 LARAVEL_TOKEN=$(curl -s -X POST http://localhost:36721/api/token -H 'content-type: application/json' -d '{"email":"user1@example.com"}' | jq -r .token)
 ```
 
+### Streaming + client-to-server pattern in this stack
+
+- **Continuous server stream** exists for: raw (`raw.telemetry`), socketio (`ticker`), graphql (`messageAdded`), jsonrpc (`updates`), stomp (`/topic/updates`), signalr (`ticker`).
+- **Client -> server publish/invoke** examples are included per protocol (`raw` interactive text, `socketio emit`, `jsonrpc call`, `stomp connect` send text, `signalr invoke`, `mqtt publish`, `wamp publish/call`, `pusher subscribe/auth`).
+
 ## 1) Raw WebSocket
 
 ### Connect (advanced fields)
@@ -22,6 +27,7 @@ soccli raw connect \
 ### Connect (URL mode)
 ```bash
 soccli raw connect "ws://localhost:36712/ws" -H "Authorization: Bearer $GLOBAL_TOKEN"
+# then type lines to send to server (echo path)
 ```
 
 ## 2) Socket.IO
@@ -70,9 +76,11 @@ soccli jsonrpc call \
 ### Interactive mode
 ```bash
 soccli jsonrpc connect --host localhost --port 36715 --path /rpc -H "Authorization: Bearer $GLOBAL_TOKEN"
+# server continuously emits event: updates
 # then send:
 # {"method":"user.get","params":{"id":5},"id":1}
 # {"method":"math.sum","params":[1,2,3],"id":2}
+# {"method":"message.publish","params":{"channel":"updates","payload":{"msg":"hi"}},"id":3}
 ```
 
 ## 5) STOMP over WebSocket
@@ -111,6 +119,7 @@ soccli signalr invoke \
 soccli signalr connect \
   --host localhost --port 36717 --path /hub/chat \
   -H "Authorization: Bearer $GLOBAL_TOKEN"
+# server continuously pushes ticker events
 ```
 
 ## 7) MQTT over WebSocket

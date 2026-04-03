@@ -21,13 +21,18 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-  socket.emit('welcome', { user: socket.data.user.email, protocol: 'socket.io' });
+  socket.emit('welcome', { user: socket.data.user.email, protocol: 'socket.io', channels: ['message', 'ticker'] });
 
   socket.on('message', (payload) => {
     io.emit('message', { from: socket.data.user.email, payload, ts: Date.now() });
   });
 
   socket.on('join', (room) => socket.join(room));
+  socket.on('room:message', ({ room, payload }) => io.to(room).emit('room:message', { room, payload, by: socket.data.user.email }));
 });
+
+setInterval(() => {
+  io.emit('ticker', { channel: 'ticker', value: Number((Math.random() * 100).toFixed(2)), ts: Date.now() });
+}, 3000);
 
 httpServer.listen(port, () => console.log(`Socket.IO on ${port}`));

@@ -18,5 +18,11 @@ server.setAuth(({ token }) => {
 
 server.register('user.get', ({ id }) => ({ id, name: `user-${id}` })).protected();
 server.register('math.sum', ([a, b, c = 0]) => a + b + c).protected();
+server.register('message.publish', ({ channel = 'updates', payload = {} }) => ({ ok: true, channel, payload, ts: Date.now() })).protected();
+
+server.event('updates');
+setInterval(() => {
+  server.emit('updates', { channel: 'updates', metric: Number((Math.random() * 100).toFixed(2)), ts: Date.now() });
+}, 3000);
 
 console.log(`JSON-RPC on ${port}/rpc`);

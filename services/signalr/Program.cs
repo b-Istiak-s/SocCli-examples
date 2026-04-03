@@ -51,6 +51,16 @@ app.UseAuthorization();
 app.MapHub<ChatHub>("/hub/chat").RequireAuthorization("SignalRScope");
 app.MapGet("/health", () => Results.Ok(new { ok = true }));
 
+var hubContext = app.Services.GetRequiredService<IHubContext<ChatHub>>();
+_ = Task.Run(async () =>
+{
+    while (true)
+    {
+        await hubContext.Clients.All.SendAsync("ticker", new { channel = "ticker", value = Random.Shared.NextDouble() * 100, ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() });
+        await Task.Delay(3000);
+    }
+});
+
 app.Run("http://0.0.0.0:36717");
 
 class ChatHub : Hub

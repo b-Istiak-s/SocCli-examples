@@ -11,17 +11,17 @@ This doc explains how each service in this repo works independently.
 ## Raw WS (`services/raw`)
 - Runs on `ws://localhost:36712/ws`.
 - Verifies Bearer JWT and requires `raw` scope.
-- Sends welcome payload then echoes received messages.
+- Channels/data: `raw.telemetry` (continuous every 3s), `raw.echo` (echo for client-sent lines).
 
 ## Socket.IO (`services/socketio`)
 - Runs on `ws://localhost:36713/socket.io/`.
 - Verifies handshake auth token and requires `socketio` scope.
-- Emits `welcome`; broadcasts incoming `message` events; supports `join` room event.
+- Channels/events: `message` (client->server->broadcast), `room:message` (room scoped), `ticker` (continuous every 3s).
 
 ## GraphQL (`services/graphql`)
 - Runs on `http://localhost:36714/graphql` with WebSocket subscriptions.
 - Requires auth header bearer token and `graphql` scope.
-- Exposes `Query.ping` and `Subscription.messageAdded`.
+- Streams `Subscription.messageAdded` continuously; clients send subscription operations to server.
 
 ## JSON-RPC (`services/jsonrpc`)
 - Runs on `ws://localhost:36715/rpc`.
@@ -29,11 +29,13 @@ This doc explains how each service in this repo works independently.
 - Methods:
   - `user.get({id})`
   - `math.sum([a,b,c])`
+  - `message.publish({channel,payload})`
+- Server emits `updates` event continuously every 3s.
 
 ## STOMP (`services/stomp`)
 - Runs on `ws://localhost:36716/ws`.
 - Validates JWT and requires `stomp` scope during CONNECT.
-- Publishes periodic ticks to `/topic/updates`.
+- Destination `/topic/updates` receives periodic ticks every 5s; clients can SEND via interactive mode.
 
 ## SignalR (`services/signalr`)
 - Runs on `http://localhost:36717/hub/chat`.
@@ -41,6 +43,7 @@ This doc explains how each service in this repo works independently.
 - Hub methods:
   - `SendMessage(message, room = "general")`
   - `JoinRoom(room)`
+- Server emits `ticker` event continuously every 3s.
 
 ## MQTT (`emqx` in compose)
 - WS listener on `36718`, TCP listener on `36719`.
@@ -61,3 +64,15 @@ This doc explains how each service in this repo works independently.
 - Each protocol service can be started/tested on its own endpoint.
 - JWT-coupled services: auth/raw/socketio/graphql/jsonrpc/stomp/signalr.
 - Non-JWT infra services: mqtt/wamp/reverb (own auth/protocol patterns).
+
+
+## Channel / topic map
+- raw: `raw.telemetry`, `raw.echo`
+- socketio: `message`, `room:message`, `ticker`
+- graphql: `messageAdded`
+- jsonrpc: methods + `updates` event
+- stomp: `/topic/updates`
+- signalr: `message`, `ticker`
+- mqtt: arbitrary topics (example: `sensors/temperature`)
+- wamp: arbitrary topics/procedures under `com.example.*`
+- pusher/reverb: application channels (example: `private-users.1`)
