@@ -8,7 +8,7 @@
           "name": "realm1",
           "roles": [
             { "name": "anonymous", "permissions": [
-              { "uri": "com.example.*", "match": "wildcard", "allow": { "call": false, "register": false, "publish": false, "subscribe": true } }
+              { "uri": "com.example.*", "match": "wildcard", "allow": { "call": true, "register": true, "publish": true, "subscribe": true } }
             ] }
           ]
         }

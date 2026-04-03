@@ -52,13 +52,17 @@ This doc explains how each service in this repo works independently.
 
 ## WAMP (`crossbar`)
 - Router endpoint on `ws://localhost:36720/ws`, realm `realm1`.
-- Anonymous role is least-privilege and subscribe-only for `com.example.*` (no anonymous call/register/publish).
+- Anonymous role is intentionally permissive for local testing on `com.example.*` (call/register/publish/subscribe all enabled).
 - Independent router service; not JWT-coupled to auth service.
 
 ## Laravel Reverb (`services/laravel-reverb`)
 - API on `36721`, Reverb WS on `36722`.
 - Bootstraps Laravel app, installs Reverb + Sanctum.
 - Provides `POST /api/token` to mint Sanctum token for broadcasting auth.
+
+## Local test-mode note
+- `ALLOW_INSECURE_TESTING=true` is enabled in compose for several services to reduce auth friction during local protocol testing.
+- This intentionally favors testability over hard security controls.
 
 ## Why services are independent
 - Each protocol service can be started/tested on its own endpoint.

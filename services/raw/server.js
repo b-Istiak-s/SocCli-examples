@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soccli-dev-secret';
 const port = Number(process.env.PORT || 36712);
+const insecureTesting = process.env.ALLOW_INSECURE_TESTING === 'true';
 
 const wss = new WebSocketServer({ port, path: '/ws' });
 const clients = new Set();
@@ -12,9 +13,12 @@ wss.on('connection', (ws, req) => {
   const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
 
   try {
-    if (!token) throw new Error('Missing token');
-    const payload = jwt.verify(token, JWT_SECRET);
-    if (!Array.isArray(payload.scopes) || !payload.scopes.includes('raw')) throw new Error('Missing raw scope');
+    let payload = { sub: 'guest', email: 'guest@local', scopes: ['raw'] };
+    if (!insecureTesting || token) {
+      if (!token) throw new Error('Missing token');
+      payload = jwt.verify(token, JWT_SECRET);
+      if (!insecureTesting && (!Array.isArray(payload.scopes) || !payload.scopes.includes('raw'))) throw new Error('Missing raw scope');
+    }
     ws.user = payload;
     clients.add(ws);
     const userId = payload.email || payload.sub || payload.username || 'unknown';

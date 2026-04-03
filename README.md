@@ -33,6 +33,8 @@ echo "$GLOBAL_TOKEN"
 
 All exposed ports are intentionally assigned in the **30000–40000** range to minimize conflicts with common local services (databases, default dev servers, brokers, etc.).
 
+This stack is intentionally configured for **local testing convenience**. Several services run with `ALLOW_INSECURE_TESTING=true` in compose so protocol flows are easier to exercise with SocCli.
+
 ### Are users the same across all protocols?
 
 Yes. In this examples repo, auth is configured for **one shared user identity** across all protocols.

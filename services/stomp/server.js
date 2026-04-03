@@ -5,6 +5,7 @@ import StompServer from 'stomp-broker-js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'soccli-dev-secret';
 const port = Number(process.env.PORT || 36716);
+const insecureTesting = process.env.ALLOW_INSECURE_TESTING === 'true';
 
 const app = express();
 app.get('/health', (_req, res) => res.json({ ok: true }));
@@ -21,10 +22,10 @@ const stompServer = new StompServer({
 stompServer.on('connecting', (sessionId, headers = {}) => {
   try {
     const token = headers.Authorization?.replace('Bearer ', '') || headers.authorization?.replace('Bearer ', '');
-    if (!token) throw new Error('Missing token');
+    if (!token && !insecureTesting) throw new Error('Missing token');
 
-    const payload = jwt.verify(token, JWT_SECRET);
-    if (!Array.isArray(payload.scopes) || !payload.scopes.includes('stomp')) {
+    const payload = token ? jwt.verify(token, JWT_SECRET) : { scopes: ['stomp'] };
+    if (!insecureTesting && (!Array.isArray(payload.scopes) || !payload.scopes.includes('stomp'))) {
       throw new Error('Missing stomp scope');
     }
 

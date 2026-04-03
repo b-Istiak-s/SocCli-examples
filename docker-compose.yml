@@ -18,7 +18,7 @@ services:
     volumes:
       - ./services/raw:/app
     command: sh -c "npm install && npm start"
-    environment: [JWT_SECRET=soccli-dev-secret]
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
     ports: ["36712:36712"]
 
   socketio:
@@ -27,7 +27,7 @@ services:
     volumes:
       - ./services/socketio:/app
     command: sh -c "npm install && npm start"
-    environment: [JWT_SECRET=soccli-dev-secret]
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
     ports: ["36713:36713"]
 
   graphql:
@@ -36,7 +36,7 @@ services:
     volumes:
       - ./services/graphql:/app
     command: sh -c "npm install && npm start"
-    environment: [JWT_SECRET=soccli-dev-secret]
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
     ports: ["36714:36714"]
 
   jsonrpc:
@@ -45,7 +45,7 @@ services:
     volumes:
       - ./services/jsonrpc:/app
     command: sh -c "npm install && npm start"
-    environment: [JWT_SECRET=soccli-dev-secret]
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
     ports: ["36715:36715"]
 
   stomp:
@@ -54,12 +54,12 @@ services:
     volumes:
       - ./services/stomp:/app
     command: sh -c "npm install && npm start"
-    environment: [JWT_SECRET=soccli-dev-secret]
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
     ports: ["36716:36716"]
 
   signalr:
     build: ./services/signalr
-    environment: [JWT_SECRET=soccli-dev-secret]
+    environment: [JWT_SECRET=soccli-dev-secret, ALLOW_INSECURE_TESTING=true]
     ports: ["36717:36717"]
 
   mqtt:
