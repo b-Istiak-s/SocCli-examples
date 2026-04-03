@@ -92,7 +92,20 @@ npm run dev:all
 
 `dev:all` uses `concurrently` and launches:
 - JS services via `npm run dev:js`
-- non-Node services via `docker compose up signalr reverb mqtt wamp`
+- non-Node services via `npm run dev:infra`
+
+`dev:infra` is best-effort (it prints guidance and continues if container runtime is unavailable).
+Use `npm run dev:infra:strict  # runs docker compose up --build ...` if you want infra startup failures to exit non-zero.
+
+### Podman note
+
+If you see errors like `... /run/user/<uid>/podman/podman.sock ... no such file or directory`, the Podman socket is not active.
+
+```bash
+systemctl --user start podman.socket
+systemctl --user status podman.socket
+npm run dev:infra:strict  # runs docker compose up --build ...
+```
 
 ## SocCli examples against local services
 
