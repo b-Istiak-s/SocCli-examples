@@ -1,0 +1,16 @@
+{
+  "name": "soccli-examples",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install:services": "npm --prefix services/auth install && npm --prefix services/raw install && npm --prefix services/socketio install && npm --prefix services/graphql install && npm --prefix services/jsonrpc install && npm --prefix services/stomp install",
+    "dev:js": "concurrently -n auth,raw,socketio,graphql,jsonrpc,stomp -c cyan,green,magenta,yellow,blue,red \"npm --prefix services/auth start\" \"npm --prefix services/raw start\" \"npm --prefix services/socketio start\" \"npm --prefix services/graphql start\" \"npm --prefix services/jsonrpc start\" \"npm --prefix services/stomp start\"",
+    "check:js": "for f in services/*/server.js; do node --check \"$f\"; done",
+    "dev:infra": "docker compose up signalr reverb mqtt wamp",
+    "dev:all": "concurrently -n js,infra -c cyan,yellow \"npm run dev:js\" \"npm run dev:infra\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
